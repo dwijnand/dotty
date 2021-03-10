@@ -519,7 +519,7 @@ class SyntheticMembers(thisPhase: DenotTransformer) {
     if (cls.is(Enum)) param.select(nme.ordinal).ensureApplied
     else {
       val cases =
-        for ((child, idx) <- cls.children.zipWithIndex) yield {
+        for ((child, idx) <- cls.subclasses.zipWithIndex) yield {
           val patType = if (child.isTerm) child.reachableTermRef else child.reachableRawTypeRef
           val pat = Typed(untpd.Ident(nme.WILDCARD).withType(patType), TypeTree(patType))
           CaseDef(pat, EmptyTree, Literal(Constant(idx)))

@@ -275,11 +275,10 @@ class Synthesizer(typer: Typer)(using @constructorOnly c: Context):
     val useCompanion = cls.useCompanionAsMirror
 
     if cls.isGenericSum(if useCompanion then cls.linkedClass else ctx.owner) then
-      val elemLabels = cls.children.map(c => ConstantType(Constant(c.name.toString)))
+      val elemLabels = cls.subclasses.map(c => ConstantType(Constant(c.name.toString)))
 
       def solve(sym: Symbol): Type = sym match
-        case caseClass: ClassSymbol =>
-          assert(caseClass.is(Case))
+        case caseClass: ClassSymbol if caseClass.is(Case) =>
           if caseClass.is(Module) then
             caseClass.sourceModule.termRef
           else
@@ -313,11 +312,11 @@ class Synthesizer(typer: Typer)(using @constructorOnly c: Context):
       val (monoType, elemsType) = mirroredType match
         case mirroredType: HKTypeLambda =>
           val elems = mirroredType.derivedLambdaType(
-            resType = TypeOps.nestedPairs(cls.children.map(solve))
+            resType = TypeOps.nestedPairs(cls.subclasses.map(solve))
           )
           (mkMirroredMonoType(mirroredType), elems)
         case _ =>
-          val elems = TypeOps.nestedPairs(cls.children.map(solve))
+          val elems = TypeOps.nestedPairs(cls.subclasses.map(solve))
           (mirroredType, elems)
 
       val mirrorType =

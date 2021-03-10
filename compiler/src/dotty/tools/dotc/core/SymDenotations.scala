@@ -1606,6 +1606,9 @@ object SymDenotations {
 
       annotations.collect { case Annotation.Child(child) => child }.reverse
     end children
+
+    def subclasses(using Context): List[Symbol] =
+      children.flatMap(c => if c.is(Sealed) then c.children else List(c)).sortBy(_.span.start)
   }
 
   /** The contents of a class definition during a period
